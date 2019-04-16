@@ -8,7 +8,8 @@ RUN apk update && apk upgrade \
       && apk add --no-cache build-base \
       && apk add --no-cache gfortran \
       && apk add --no-cache git \
-      && apk add --no-cache bash
+      && apk add --no-cache bash \
+      && apk add --no-cache cmake
 
 #RUN apk add --no-cache gfortran gdb make
 
@@ -34,18 +35,19 @@ RUN wget http://www.mpich.org/static/downloads/${MPICH_VERSION}/mpich-${MPICH_VE
       && rm -rf /tmp/mpich-src
 
 
-#### TEST MPICH INSTALLATION ####
-#RUN mkdir /tmp/mpich-test
-#WORKDIR /tmp/mpich-test
-#COPY mpich-test .
-#RUN sh test.sh
-#RUN rm -rf /tmp/mpich-test
-
+#### download and compile gmsh ####
+ARG GMSH_VERSION="4.2.3"
+RUN mkdir /tmp/gmsh-build
+WORKDIR  /tmp/gmsh-build
+RUN wget http://gmsh.info/src/gmsh-${GMSH_VERSION}-source.tgz \
+      && tar xvfz gmsh-${GMSH_VERSION}-source.tgz \
+      && cmake /tmp/gmsh-build/gmsh-${GMSH_VERSION}-source \
+      && make && make install \
+      && rm -rf /tmp/gmsh-build
 
 #### CLEAN UP ####
 WORKDIR /
 RUN rm -rf /tmp/*
-
 
 #### ADD DEFAULT USER ####
 ARG USER=mpi
